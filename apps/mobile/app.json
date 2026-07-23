@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "PawConnect",
+    "slug": "pawconnect",
+    "version": "0.1.0",
+    "scheme": "pawconnect",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "PawConnect uses your location to find vet care and animal shelters near you."
+      }
+    },
+    "android": {
+      "package": "com.pawconnect.app",
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+    },
+    "plugins": ["expo-router", "expo-location"]
+  }
+}

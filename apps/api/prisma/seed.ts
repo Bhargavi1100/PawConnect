@@ -1,0 +1,127 @@
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+type SeedPlace = {
+  type: "VET_CLINIC" | "VET_HOSPITAL" | "SHELTER";
+  name: string;
+  lat: number;
+  lng: number;
+  address: string;
+  phone: string;
+  website: string | null;
+  isEmergency: boolean;
+  is24Hours: boolean;
+  services: string[];
+};
+
+// Sample data centered on Manhattan, NYC — enough to exercise nearby search,
+// distance ordering, and the emergency/type filters locally.
+const places: SeedPlace[] = [
+  {
+    type: "VET_HOSPITAL",
+    name: "Midtown Animal Emergency Hospital",
+    lat: 40.7563, lng: -73.9832,
+    address: "123 W 45th St, New York, NY 10036",
+    phone: "+1-212-555-0142",
+    website: "https://example.com/midtown-emergency",
+    isEmergency: true, is24Hours: true, services: [],
+  },
+  {
+    type: "VET_HOSPITAL",
+    name: "Uptown 24/7 Veterinary Hospital",
+    lat: 40.7812, lng: -73.9665,
+    address: "456 Madison Ave, New York, NY 10028",
+    phone: "+1-212-555-0177",
+    website: "https://example.com/uptown-vet",
+    isEmergency: true, is24Hours: true, services: [],
+  },
+  {
+    type: "VET_CLINIC",
+    name: "Chelsea Neighborhood Vet Clinic",
+    lat: 40.7420, lng: -74.0000,
+    address: "78 8th Ave, New York, NY 10014",
+    phone: "+1-212-555-0110",
+    website: "https://example.com/chelsea-vet",
+    isEmergency: false, is24Hours: false, services: [],
+  },
+  {
+    type: "VET_CLINIC",
+    name: "East Village Pet Care",
+    lat: 40.7270, lng: -73.9830,
+    address: "210 E 6th St, New York, NY 10003",
+    phone: "+1-212-555-0128",
+    website: null,
+    isEmergency: false, is24Hours: false, services: [],
+  },
+  {
+    type: "VET_HOSPITAL",
+    name: "Brooklyn Heights Animal Hospital",
+    lat: 40.6959, lng: -73.9936,
+    address: "34 Clark St, Brooklyn, NY 11201",
+    phone: "+1-718-555-0163",
+    website: "https://example.com/bk-heights",
+    isEmergency: true, is24Hours: false, services: [],
+  },
+  {
+    type: "SHELTER",
+    name: "Manhattan Animal Care Center",
+    lat: 40.7871, lng: -73.9430,
+    address: "326 E 110th St, New York, NY 10029",
+    phone: "+1-212-555-0190",
+    website: "https://example.com/macc",
+    isEmergency: false, is24Hours: false,
+    services: ["ADOPTION", "SURRENDER", "LOST_AND_FOUND"],
+  },
+  {
+    type: "SHELTER",
+    name: "Hudson River Humane Society",
+    lat: 40.7484, lng: -74.0047,
+    address: "500 West St, New York, NY 10011",
+    phone: "+1-212-555-0155",
+    website: "https://example.com/hudson-humane",
+    isEmergency: false, is24Hours: false,
+    services: ["ADOPTION", "LOST_AND_FOUND"],
+  },
+  {
+    type: "SHELTER",
+    name: "Brooklyn Paws Rescue Shelter",
+    lat: 40.6782, lng: -73.9442,
+    address: "88 Nostrand Ave, Brooklyn, NY 11205",
+    phone: "+1-718-555-0181",
+    website: "https://example.com/bk-paws",
+    isEmergency: false, is24Hours: false,
+    services: ["ADOPTION", "SURRENDER"],
+  },
+];
+
+async function main() {
+  const existing = await prisma.place.count();
+  if (existing > 0) {
+    console.log(`Seed skipped — ${existing} places already in database.`);
+    return;
+  }
+  for (const p of places) {
+    // Raw SQL because Prisma can't write the PostGIS geography column directly.
+    await prisma.$executeRaw`
+      INSERT INTO "Place"
+        ("id", "type", "name", "location", "address", "phone", "website",
+         "isEmergency", "is24Hours", "services", "verified", "source")
+      VALUES
+        (gen_random_uuid(), ${p.type}::"PlaceType", ${p.name},
+         ST_SetSRID(ST_MakePoint(${p.lng}, ${p.lat}), 4326)::geography,
+         ${p.address}, ${p.phone}, ${p.website},
+         ${p.isEmergency}, ${p.is24Hours}, ${p.services}::text[],
+         true, 'CURATED'::"PlaceSource")
+    `;
+  }
+  const count = await prisma.place.count();
+  console.log(`Seed complete — ${count} places in database.`);
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(() => prisma.$disconnect());

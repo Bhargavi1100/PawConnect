@@ -97,7 +97,34 @@ ORDER BY location <-> ST_MakePoint($lng, $lat)::geography
 LIMIT 50;
 ```
 
-## 6. Non-functional requirements
+## 6. Global reach — India-first
+
+PawConnect targets a worldwide audience with **India as a priority market**.
+Decisions already made with that in mind, and what it changes going forward:
+
+- **Metric everywhere.** Distances are kilometers in the API and both UIs.
+- **International phone handling.** `telUrl()` (packages/shared) preserves the
+  leading `+`, so `+91`, `+1`, etc. all dial correctly; seed data includes
+  `+91-<STD>-…` formats.
+- **Seed & test data spans regions**: Manhattan plus Bengaluru, Mumbai, and
+  Delhi, so "near me" development works from either geography.
+- **Google Maps Platform works well in India** (coverage, directions,
+  autocomplete). Enrichment should pass the user's `languageCode`/`regionCode`
+  to the Places API so names/addresses come back localized (Phase 1 follow-up).
+- **Languages**: multilingual support is a high priority, not an afterthought —
+  Hindi first, then major regional languages (Kannada, Marathi, Tamil, Telugu,
+  Bengali). UI strings should move to an i18n layer before copy accumulates.
+- **Low-bandwidth resilience**: many Indian users are on constrained mobile
+  networks — keep emergency pages light (list renders without the map), cache
+  aggressively, and keep API payloads small.
+- **Local data partnerships** (roadmap): Indian shelter and rescue networks
+  (e.g. Blue Cross of India, CUPA, municipal ABC centres) alongside western
+  feeds like Petfinder; curated `verified` data matters even more where Google
+  listings are sparse or stale.
+- **Time zones**: open-now computation must be timezone-aware per place (IST
+  has no DST; the US does — store each place's IANA zone, never the server's).
+
+## 7. Non-functional requirements
 
 - **Speed in emergencies:** emergency page interactive < 2s on 4G; API nearby query < 100ms (GiST index)
 - **Offline resilience (mobile):** cache last results; degrade to phone-number list
@@ -105,6 +132,6 @@ LIMIT 50;
 - **Privacy:** location used only for the search request, never stored with user identity
 - **Accessibility:** WCAG AA contrast, screen-reader labels on all emergency actions
 
-## 7. Delivery phases
+## 8. Delivery phases
 
 See [ROADMAP.md](ROADMAP.md). This repository currently contains the Phase-0 scaffold: monorepo wiring, shared schemas, API with PostGIS nearby search + auth + seed data, web landing/emergency/shelter pages, and the Expo app skeleton.

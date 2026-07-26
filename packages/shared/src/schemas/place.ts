@@ -4,6 +4,7 @@ import {
   MAX_NEARBY_RESULTS,
   MAX_SEARCH_RADIUS_KM,
 } from "../constants";
+import { WeeklyHoursSchema } from "../hours";
 
 export const PlaceTypeSchema = z.enum(["VET_CLINIC", "VET_HOSPITAL", "SHELTER"]);
 export type PlaceType = z.infer<typeof PlaceTypeSchema>;
@@ -46,6 +47,8 @@ export const PlaceSummarySchema = z.object({
   services: z.array(z.string()),
   verified: z.boolean(),
   distanceKm: z.number(),
+  /** Open at request time in the place's own timezone; null = unknown. */
+  openNow: z.boolean().nullable(),
 });
 export type PlaceSummary = z.infer<typeof PlaceSummarySchema>;
 
@@ -55,7 +58,8 @@ export const NearbyResponseSchema = z.object({
 export type NearbyResponse = z.infer<typeof NearbyResponseSchema>;
 
 export const PlaceDetailSchema = PlaceSummarySchema.omit({ distanceKm: true }).extend({
-  hours: z.record(z.string()).nullable(),
+  hours: WeeklyHoursSchema.nullable(),
+  timezone: z.string().nullable(),
   googlePlaceId: z.string().nullable(),
   source: z.enum(["CURATED", "GOOGLE_PLACES"]),
 });

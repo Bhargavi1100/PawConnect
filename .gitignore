@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+build/
+.next/
+.expo/
+.turbo/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Prisma
+apps/api/src/generated/
+
+# Logs & OS
+*.log
+*.tsbuildinfo
+.DS_Store
+
+# Editor
+.vscode/
+.idea/

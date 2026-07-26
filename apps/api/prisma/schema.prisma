@@ -1,0 +1,58 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+enum PlaceType {
+  VET_CLINIC
+  VET_HOSPITAL
+  SHELTER
+}
+
+enum PlaceSource {
+  CURATED
+  GOOGLE_PLACES
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model Place {
+  id            String                                @id @default(uuid())
+  type          PlaceType
+  name          String
+  // PostGIS geography point; queried via raw SQL (see src/routes/places.ts)
+  location      Unsupported("geography(Point, 4326)")
+  address       String
+  phone         String?
+  website       String?
+  hours         Json?
+  isEmergency   Boolean                               @default(false)
+  is24Hours     Boolean                               @default(false)
+  services      String[]                              @default([])
+  googlePlaceId String?                               @unique
+  verified      Boolean                               @default(false)
+  source        PlaceSource                           @default(CURATED)
+  createdAt     DateTime                              @default(now())
+  updatedAt     DateTime                              @default(now()) @updatedAt
+
+  @@index([location], type: Gist)
+  @@index([type])
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now())
+}

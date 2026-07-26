@@ -111,9 +111,8 @@ Decisions already made with that in mind, and what it changes going forward:
 - **Google Maps Platform works well in India** (coverage, directions,
   autocomplete). Enrichment should pass the user's `languageCode`/`regionCode`
   to the Places API so names/addresses come back localized (Phase 1 follow-up).
-- **Languages**: multilingual support is a high priority, not an afterthought —
-  Hindi first, then major regional languages (Kannada, Marathi, Tamil, Telugu,
-  Bengali). UI strings should move to an i18n layer before copy accumulates.
+- **Language**: the product is English-only for now — no multilingual support
+  is being built at this stage (it remains a distant roadmap idea only).
 - **Low-bandwidth resilience**: many Indian users are on constrained mobile
   networks — keep emergency pages light (list renders without the map), cache
   aggressively, and keep API payloads small.

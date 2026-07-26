@@ -16,6 +16,13 @@ Validation schemas live in `packages/shared` (Zod) and are enforced server-side.
 
 Find vet clinics/hospitals or shelters near a point, ordered by distance.
 
+When the server is configured with `GOOGLE_MAPS_API_KEY`, this endpoint first
+enriches the database from Google Places (New) for the searched area — vets via
+`places:searchNearby` (`veterinary_care` type), shelters via `places:searchText`
+— upserting results by `googlePlaceId`. Each map cell (~0.1° grid, per type) is
+enriched at most once every 7 days, and enrichment failures never break the
+search; manually `verified` rows are never overwritten by Google data.
+
 | Query param | Type | Required | Notes |
 |---|---|---|---|
 | `lat` | number (−90…90) | yes | |

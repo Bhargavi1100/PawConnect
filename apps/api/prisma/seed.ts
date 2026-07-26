@@ -15,8 +15,9 @@ type SeedPlace = {
   services: string[];
 };
 
-// Sample data centered on Manhattan, NYC — enough to exercise nearby search,
-// distance ordering, and the emergency/type filters locally.
+// Sample data for two launch regions — Manhattan, NYC and three Indian metros
+// (Bengaluru, Mumbai, Delhi) — enough to exercise nearby search, distance
+// ordering, and the emergency/type filters locally. All entries are fictional.
 const places: SeedPlace[] = [
   {
     type: "VET_HOSPITAL",
@@ -92,6 +93,78 @@ const places: SeedPlace[] = [
     website: "https://example.com/bk-paws",
     isEmergency: false, is24Hours: false,
     services: ["ADOPTION", "SURRENDER"],
+  },
+
+  // --- Bengaluru ---
+  {
+    type: "VET_HOSPITAL",
+    name: "Koramangala 24x7 Pet Emergency Hospital",
+    lat: 12.9352, lng: 77.6245,
+    address: "80 Feet Rd, Koramangala, Bengaluru, Karnataka 560034",
+    phone: "+91-80-4000-1001",
+    website: "https://example.com/koramangala-emergency",
+    isEmergency: true, is24Hours: true, services: [],
+  },
+  {
+    type: "VET_CLINIC",
+    name: "Indiranagar Pet Care Clinic",
+    lat: 12.9784, lng: 77.6408,
+    address: "100 Feet Rd, Indiranagar, Bengaluru, Karnataka 560038",
+    phone: "+91-80-4000-1002",
+    website: null,
+    isEmergency: false, is24Hours: false, services: [],
+  },
+  {
+    type: "SHELTER",
+    name: "Hebbal Animal Rescue & Shelter Trust",
+    lat: 13.0358, lng: 77.5970,
+    address: "Bellary Rd, Hebbal, Bengaluru, Karnataka 560024",
+    phone: "+91-80-4000-1003",
+    website: "https://example.com/hebbal-shelter",
+    isEmergency: false, is24Hours: false,
+    services: ["ADOPTION", "SURRENDER", "LOST_AND_FOUND"],
+  },
+
+  // --- Mumbai ---
+  {
+    type: "VET_HOSPITAL",
+    name: "Bandra Emergency Animal Hospital",
+    lat: 19.0596, lng: 72.8295,
+    address: "Hill Rd, Bandra West, Mumbai, Maharashtra 400050",
+    phone: "+91-22-4000-2001",
+    website: "https://example.com/bandra-emergency",
+    isEmergency: true, is24Hours: true, services: [],
+  },
+  {
+    type: "SHELTER",
+    name: "Parel Animal Welfare Shelter",
+    lat: 19.0069, lng: 72.8397,
+    address: "Dr. E Moses Rd, Parel, Mumbai, Maharashtra 400012",
+    phone: "+91-22-4000-2002",
+    website: "https://example.com/parel-shelter",
+    isEmergency: false, is24Hours: false,
+    services: ["ADOPTION", "LOST_AND_FOUND"],
+  },
+
+  // --- Delhi ---
+  {
+    type: "VET_HOSPITAL",
+    name: "South Delhi 24-Hour Veterinary Hospital",
+    lat: 28.5494, lng: 77.2001,
+    address: "Aurobindo Marg, Hauz Khas, New Delhi, Delhi 110016",
+    phone: "+91-11-4000-3001",
+    website: "https://example.com/south-delhi-vet",
+    isEmergency: true, is24Hours: true, services: [],
+  },
+  {
+    type: "SHELTER",
+    name: "Yamuna Bank Animal Shelter & ABC Centre",
+    lat: 28.6270, lng: 77.2775,
+    address: "NH 24, Near Yamuna Bank, New Delhi, Delhi 110002",
+    phone: "+91-11-4000-3002",
+    website: "https://example.com/yamuna-shelter",
+    isEmergency: false, is24Hours: false,
+    services: ["ADOPTION", "SURRENDER", "LOST_AND_FOUND"],
   },
 ];
 

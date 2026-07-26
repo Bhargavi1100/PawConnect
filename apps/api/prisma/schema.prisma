@@ -48,6 +48,15 @@ model Place {
   @@index([type])
 }
 
+// Tracks which map "cells" (rounded lat/lng grid + place type) have already
+// been enriched from Google Places, so repeat searches in the same area hit
+// our database instead of Google's billing meter.
+model EnrichmentArea {
+  id         String   @id @default(uuid())
+  cellKey    String   @unique
+  enrichedAt DateTime @default(now())
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique

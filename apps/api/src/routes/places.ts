@@ -2,6 +2,7 @@ import { Router } from "express";
 import { NearbyQuerySchema, type PlaceSummary } from "@pawconnect/shared";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
+import { enrichNearby, isEnrichmentConfigured } from "../lib/googlePlaces";
 
 export const placesRouter = Router();
 
@@ -22,6 +23,18 @@ placesRouter.get("/nearby", async (req, res) => {
     return;
   }
   const { lat, lng, type, radiusKm, emergency, openNow, limit } = parsed.data;
+
+  // Best-effort Google Places enrichment: fills the Place table for this
+  // area (cached 7 days per cell) so the PostGIS query below serves a
+  // unified result set. Failures never break the search — curated data
+  // still serves.
+  if (isEnrichmentConfigured()) {
+    try {
+      await enrichNearby({ lat, lng, radiusKm, type });
+    } catch (err) {
+      console.warn("Google Places enrichment failed:", err);
+    }
+  }
 
   const point = Prisma.sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`;
   const filters = [

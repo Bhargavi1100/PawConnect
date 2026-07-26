@@ -7,7 +7,8 @@
 - Mobile: Expo app skeleton with Emergency / Shelters / Profile tabs
 
 ## Phase 1 — MVP launch
-- Google Places enrichment + response caching (server-side)
+- ✅ Google Places enrichment + response caching (server-side; per-cell 7-day
+  cache in `EnrichmentArea`, results upserted into `Place` by `googlePlaceId`)
 - Open-now computation from structured hours (timezone-aware)
 - Manual location entry (city/ZIP via Geocoding) as geolocation fallback
 - Interactive maps on web (Maps JS) and mobile (react-native-maps)

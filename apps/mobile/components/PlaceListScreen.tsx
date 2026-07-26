@@ -16,6 +16,7 @@ import {
   type PlaceType,
 } from "@pawconnect/shared";
 import { fetchNearby } from "../lib/api";
+import { ResultsMapView } from "./ResultsMapView";
 
 type Props = {
   type?: PlaceType;
@@ -26,10 +27,15 @@ type Props = {
 type State =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; places: PlaceSummary[] };
+  | {
+      status: "ready";
+      places: PlaceSummary[];
+      center: { lat: number; lng: number };
+    };
 
 export function PlaceListScreen({ type, emergency, emptyMessage }: Props) {
   const [state, setState] = useState<State>({ status: "loading" });
+  const [view, setView] = useState<"list" | "map">("list");
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -51,7 +57,11 @@ export function PlaceListScreen({ type, emergency, emptyMessage }: Props) {
         type,
         emergency,
       });
-      setState({ status: "ready", places: data.results });
+      setState({
+        status: "ready",
+        places: data.results,
+        center: { lat: position.coords.latitude, lng: position.coords.longitude },
+      });
     } catch (err) {
       setState({
         status: "error",
@@ -93,12 +103,33 @@ export function PlaceListScreen({ type, emergency, emptyMessage }: Props) {
   }
 
   return (
-    <FlatList
-      data={state.places}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.list}
-      renderItem={({ item }) => <PlaceCard place={item} />}
-    />
+    <View style={styles.container}>
+      <View style={styles.toggleRow}>
+        {(["list", "map"] as const).map((v) => (
+          <Pressable
+            key={v}
+            style={[styles.toggle, view === v && styles.toggleActive]}
+            onPress={() => setView(v)}
+          >
+            <Text style={[styles.toggleText, view === v && styles.toggleTextActive]}>
+              {v === "list" ? "☰ List" : "🗺 Map"}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+      {view === "list" ? (
+        <FlatList
+          data={state.places}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          renderItem={({ item }) => <PlaceCard place={item} />}
+        />
+      ) : (
+        <View style={styles.mapContainer}>
+          <ResultsMapView places={state.places} center={state.center} />
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -133,6 +164,26 @@ function PlaceCard({ place }: { place: PlaceSummary }) {
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1 },
+  mapContainer: { flex: 1 },
+  toggleRow: {
+    flexDirection: "row",
+    gap: 8,
+    padding: 12,
+    backgroundColor: "#fff",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#ddd",
+  },
+  toggle: {
+    flex: 1,
+    borderRadius: 8,
+    paddingVertical: 8,
+    alignItems: "center",
+    backgroundColor: "#f3f4f6",
+  },
+  toggleActive: { backgroundColor: "#ea580c" },
+  toggleText: { fontWeight: "600", color: "#444" },
+  toggleTextActive: { color: "#fff" },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   statusText: { marginTop: 12, fontSize: 16, textAlign: "center", color: "#444" },
   list: { padding: 16, gap: 12 },

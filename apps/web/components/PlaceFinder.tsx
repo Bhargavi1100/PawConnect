@@ -8,6 +8,7 @@ import {
   type PlaceSummary,
   type PlaceType,
 } from "@pawconnect/shared";
+import { MAPS_KEY, ResultsMap } from "./ResultsMap";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -23,7 +24,11 @@ type State =
   | { status: "locating" }
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; places: PlaceSummary[] };
+  | {
+      status: "ready";
+      places: PlaceSummary[];
+      center: { lat: number; lng: number };
+    };
 
 export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
   const [state, setState] = useState<State>({ status: "idle" });
@@ -38,7 +43,7 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
         const res = await fetch(`${API_URL}/api/v1/places/nearby?${params}`);
         if (!res.ok) throw new Error(`API returned ${res.status}`);
         const data = (await res.json()) as NearbyResponse;
-        setState({ status: "ready", places: data.results });
+        setState({ status: "ready", places: data.results, center: { lat, lng } });
       } catch (err) {
         setState({
           status: "error",
@@ -94,12 +99,30 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
   if (state.places.length === 0) {
     return <Status text={emptyMessage} />;
   }
-  return (
+  const list = (
     <ul className="space-y-4">
       {state.places.map((place) => (
         <PlaceCard key={place.id} place={place} />
       ))}
     </ul>
+  );
+  if (!MAPS_KEY) {
+    return (
+      <div>
+        {list}
+        <p className="mt-4 text-center text-sm text-gray-400">
+          Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to see results on an interactive map.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <div className="h-80 overflow-hidden rounded-xl border shadow-sm lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)] lg:self-start">
+        <ResultsMap places={state.places} center={state.center} />
+      </div>
+      {list}
+    </div>
   );
 }
 

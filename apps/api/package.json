@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts",
-    "build": "prisma generate && tsc --noEmit",
+    "start": "node dist/index.js",
+    "build": "prisma generate && tsc --noEmit && tsup",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:setup": "prisma migrate deploy && prisma generate && tsx prisma/seed.ts",
@@ -34,6 +34,7 @@
     "@types/supertest": "^6.0.2",
     "prisma": "^6.2.0",
     "supertest": "^7.0.0",
+    "tsup": "^8.3.5",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4",
     "vitest": "^2.1.8"

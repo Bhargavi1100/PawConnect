@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { APIProvider, InfoWindow, Map, Marker } from "@vis.gl/react-google-maps";
+import { Navigation, Phone } from "lucide-react";
 import {
   googleMapsDirectionsUrl,
   telUrl,
@@ -54,7 +55,11 @@ export function ResultsMap({ places, center }: Props) {
               </p>
               <div className="mt-2 flex gap-3 text-sm font-semibold">
                 {selected.phone && (
-                  <a href={telUrl(selected.phone)} className="text-sage-700 underline">
+                  <a
+                    href={telUrl(selected.phone)}
+                    className="inline-flex items-center gap-1 text-sage-700 underline"
+                  >
+                    <Phone className="h-3.5 w-3.5" />
                     Call
                   </a>
                 )}
@@ -62,8 +67,9 @@ export function ResultsMap({ places, center }: Props) {
                   href={googleMapsDirectionsUrl(selected.lat, selected.lng)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-clay-700 underline"
+                  className="inline-flex items-center gap-1 text-clay-700 underline"
                 >
+                  <Navigation className="h-3.5 w-3.5" />
                   Directions
                 </a>
               </div>

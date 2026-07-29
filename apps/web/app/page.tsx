@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { Clock, MapPin, PhoneCall } from "lucide-react";
+import { PawIcon } from "@/components/PawIcon";
 
 export default function HomePage() {
   return (
     <div className="py-14">
       <section className="mx-auto max-w-3xl text-center">
-        <p className="mb-4 inline-block rounded-full bg-blush-100 px-4 py-1.5 text-sm font-medium text-stone-600">
-          🐾 Care for your pet, wherever you are
+        <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-blush-100 px-4 py-1.5 text-sm font-medium text-stone-600">
+          <PawIcon className="h-4 w-4" />
+          Care for your pet, wherever you are
         </p>
         <h1 className="text-4xl font-bold tracking-tight text-stone-900 sm:text-5xl">
           Help for your pet, <span className="text-sage-700">right when it matters.</span>
@@ -33,17 +36,17 @@ export default function HomePage() {
       <section className="mx-auto mt-20 grid max-w-4xl gap-5 sm:grid-cols-3">
         {[
           {
-            emoji: "📍",
+            icon: MapPin,
             title: "Near you",
             body: "Uses your location — or a city/PIN you type — to surface the closest options, sorted by distance.",
           },
           {
-            emoji: "🕐",
+            icon: Clock,
             title: "Open now",
             body: "Hours are checked in each place's own timezone, so you only head somewhere that can see you.",
           },
           {
-            emoji: "📞",
+            icon: PhoneCall,
             title: "One tap to act",
             body: "Call or get directions with a single tap — no digging through search results under stress.",
           },
@@ -52,7 +55,9 @@ export default function HomePage() {
             key={f.title}
             className="rounded-2xl border border-cream-200 bg-white p-6 shadow-sm"
           >
-            <div className="inline-block rounded-xl bg-cream-100 p-3 text-2xl">{f.emoji}</div>
+            <div className="inline-flex rounded-xl bg-cream-100 p-3">
+              <f.icon className="h-6 w-6 text-sage-700" strokeWidth={2} />
+            </div>
             <h2 className="mt-4 text-lg font-semibold text-stone-900">{f.title}</h2>
             <p className="mt-2 leading-relaxed text-stone-600">{f.body}</p>
           </div>

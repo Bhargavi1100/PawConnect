@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import * as Location from "expo-location";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   googleMapsDirectionsUrl,
   telUrl,
@@ -113,7 +114,8 @@ export function PlaceListScreen({ type, emergency, emptyMessage }: Props) {
       <View style={styles.center}>
         <Text style={styles.statusText}>{state.message}</Text>
         <Pressable style={styles.retryButton} onPress={() => void load()}>
-          <Text style={styles.buttonText}>📍 Use my location</Text>
+          <Ionicons name="locate" size={16} color="#fff" />
+          <Text style={styles.buttonText}>Use my location</Text>
         </Pressable>
         <LocationSearchForm onSearch={searchByQuery} />
       </View>
@@ -137,8 +139,13 @@ export function PlaceListScreen({ type, emergency, emptyMessage }: Props) {
             style={[styles.toggle, view === v && styles.toggleActive]}
             onPress={() => setView(v)}
           >
+            <Ionicons
+              name={v === "list" ? "list" : "map"}
+              size={15}
+              color={view === v ? "#fff" : "#57534E"}
+            />
             <Text style={[styles.toggleText, view === v && styles.toggleTextActive]}>
-              {v === "list" ? "☰ List" : "🗺 Map"}
+              {v === "list" ? "List" : "Map"}
             </Text>
           </Pressable>
         ))}
@@ -207,14 +214,16 @@ function PlaceCard({ place }: { place: PlaceSummary }) {
             style={[styles.button, styles.callButton]}
             onPress={() => void Linking.openURL(telUrl(place.phone!))}
           >
-            <Text style={styles.buttonText}>📞 Call</Text>
+            <Ionicons name="call" size={15} color="#fff" />
+            <Text style={styles.buttonText}>Call</Text>
           </Pressable>
         )}
         <Pressable
           style={[styles.button, styles.directionsButton]}
           onPress={() => void Linking.openURL(googleMapsDirectionsUrl(place.lat, place.lng))}
         >
-          <Text style={styles.buttonText}>🧭 Directions</Text>
+          <Ionicons name="navigate" size={15} color="#fff" />
+          <Text style={styles.buttonText}>Directions</Text>
         </Pressable>
       </View>
     </View>
@@ -234,6 +243,9 @@ const styles = StyleSheet.create({
   },
   toggle: {
     flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 6,
     borderRadius: 8,
     paddingVertical: 8,
     alignItems: "center",
@@ -258,10 +270,20 @@ const styles = StyleSheet.create({
   address: { marginTop: 2, color: "#666" },
   meta: { marginTop: 6, color: "#444", fontSize: 13 },
   actions: { flexDirection: "row", gap: 8, marginTop: 12 },
-  button: { borderRadius: 8, paddingHorizontal: 18, paddingVertical: 12 },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderRadius: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
   callButton: { backgroundColor: "#54704B" },
   directionsButton: { backgroundColor: "#57534E" },
   retryButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
     marginTop: 16,
     backgroundColor: "#A85D4B",
     borderRadius: 8,

@@ -1,10 +1,6 @@
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Text } from "react-native";
-
-function TabIcon({ emoji }: { emoji: string }) {
-  return <Text style={{ fontSize: 20 }}>{emoji}</Text>;
-}
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function RootLayout() {
   return (
@@ -20,16 +16,20 @@ export default function RootLayout() {
           name="index"
           options={{
             title: "Emergency",
-            headerTitle: "🚨 Emergency Vet Care",
-            tabBarIcon: () => <TabIcon emoji="🚨" />,
+            headerTitle: "Emergency Vet Care",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="medkit" size={size} color={color} />
+            ),
           }}
         />
         <Tabs.Screen
           name="shelters"
           options={{
             title: "Shelters",
-            headerTitle: "🏠 Animal Shelters",
-            tabBarIcon: () => <TabIcon emoji="🏠" />,
+            headerTitle: "Animal Shelters",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home" size={size} color={color} />
+            ),
           }}
         />
         <Tabs.Screen
@@ -37,7 +37,9 @@ export default function RootLayout() {
           options={{
             title: "Profile",
             headerTitle: "Profile",
-            tabBarIcon: () => <TabIcon emoji="👤" />,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={color} />
+            ),
           }}
         />
       </Tabs>

@@ -31,7 +31,7 @@ export function ResultsMapView({ places, center }: Props) {
           coordinate={{ latitude: place.lat, longitude: place.lng }}
           title={place.name}
           description={`${place.distanceKm.toFixed(1)} km away${place.is24Hours ? " · Open 24/7" : ""} — tap for directions`}
-          pinColor={place.isEmergency ? "red" : "orange"}
+          pinColor={place.isEmergency ? "#A85D4B" : "#66845C"}
           onCalloutPress={() =>
             void Linking.openURL(googleMapsDirectionsUrl(place.lat, place.lng))
           }

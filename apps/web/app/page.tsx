@@ -2,53 +2,59 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="py-12">
-      <section className="text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-          Help for your pet, <span className="text-brand-600">right now.</span>
+    <div className="py-14">
+      <section className="mx-auto max-w-3xl text-center">
+        <p className="mb-4 inline-block rounded-full bg-blush-100 px-4 py-1.5 text-sm font-medium text-stone-600">
+          🐾 Care for your pet, wherever you are
+        </p>
+        <h1 className="text-4xl font-bold tracking-tight text-stone-900 sm:text-5xl">
+          Help for your pet, <span className="text-sage-700">right when it matters.</span>
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+        <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-stone-600">
           PawConnect finds the nearest open vet hospital in an emergency and
           connects you with animal shelters in your neighborhood.
         </p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/emergency"
-            className="w-full rounded-xl bg-red-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:bg-red-700 sm:w-auto"
+            className="w-full rounded-xl bg-clay-600 px-8 py-4 text-lg font-semibold text-white shadow-sm transition-colors hover:bg-clay-700 sm:w-auto"
           >
-            🚨 Find Emergency Vet Care
+            Find emergency vet care
           </Link>
           <Link
             href="/shelters"
-            className="w-full rounded-xl bg-brand-500 px-8 py-4 text-lg font-bold text-white shadow-lg hover:bg-brand-600 sm:w-auto"
+            className="w-full rounded-xl border border-sage-200 bg-white px-8 py-4 text-lg font-semibold text-sage-700 shadow-sm transition-colors hover:bg-sage-50 sm:w-auto"
           >
-            🏠 Find Animal Shelters
+            Find animal shelters
           </Link>
         </div>
       </section>
 
-      <section className="mt-16 grid gap-6 sm:grid-cols-3">
+      <section className="mx-auto mt-20 grid max-w-4xl gap-5 sm:grid-cols-3">
         {[
           {
             emoji: "📍",
             title: "Near you",
-            body: "Uses your location to surface the closest options, sorted by real distance.",
+            body: "Uses your location — or a city/PIN you type — to surface the closest options, sorted by distance.",
           },
           {
             emoji: "🕐",
             title: "Open now",
-            body: "Emergency results prioritize 24/7 hospitals and clinics that can see you immediately.",
+            body: "Hours are checked in each place's own timezone, so you only head somewhere that can see you.",
           },
           {
             emoji: "📞",
             title: "One tap to act",
-            body: "Call or get Google Maps directions with a single tap — no digging through search results.",
+            body: "Call or get directions with a single tap — no digging through search results under stress.",
           },
         ].map((f) => (
-          <div key={f.title} className="rounded-xl border bg-white p-6 shadow-sm">
-            <div className="text-3xl">{f.emoji}</div>
-            <h2 className="mt-2 text-lg font-semibold">{f.title}</h2>
-            <p className="mt-1 text-gray-600">{f.body}</p>
+          <div
+            key={f.title}
+            className="rounded-2xl border border-cream-200 bg-white p-6 shadow-sm"
+          >
+            <div className="inline-block rounded-xl bg-cream-100 p-3 text-2xl">{f.emoji}</div>
+            <h2 className="mt-4 text-lg font-semibold text-stone-900">{f.title}</h2>
+            <p className="mt-2 leading-relaxed text-stone-600">{f.body}</p>
           </div>
         ))}
       </section>

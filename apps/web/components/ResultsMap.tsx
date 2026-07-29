@@ -48,13 +48,13 @@ export function ResultsMap({ places, center }: Props) {
           >
             <div className="max-w-56">
               <p className="font-bold">{selected.name}</p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-stone-500">
                 {selected.distanceKm.toFixed(1)} km away
                 {selected.is24Hours && " · Open 24/7"}
               </p>
               <div className="mt-2 flex gap-3 text-sm font-semibold">
                 {selected.phone && (
-                  <a href={telUrl(selected.phone)} className="text-green-700 underline">
+                  <a href={telUrl(selected.phone)} className="text-sage-700 underline">
                     Call
                   </a>
                 )}
@@ -62,7 +62,7 @@ export function ResultsMap({ places, center }: Props) {
                   href={googleMapsDirectionsUrl(selected.lat, selected.lng)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-700 underline"
+                  className="text-clay-700 underline"
                 >
                   Directions
                 </a>

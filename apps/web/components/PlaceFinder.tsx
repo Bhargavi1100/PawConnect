@@ -107,15 +107,15 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
   }
   if (state.status === "error") {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-        <p className="text-red-800">{state.message}</p>
+      <div className="rounded-2xl border border-cream-200 bg-white p-8 text-center shadow-sm">
+        <p className="text-stone-700">{state.message}</p>
         <button
           onClick={locate}
-          className="mt-4 rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700"
+          className="mt-5 rounded-xl bg-clay-600 px-6 py-2.5 font-semibold text-white transition-colors hover:bg-clay-700"
         >
           📍 Use my location
         </button>
-        <div className="mx-auto mt-6 max-w-md border-t border-red-200 pt-5">
+        <div className="mx-auto mt-7 max-w-md border-t border-cream-200 pt-6">
           <LocationSearchForm onSearch={searchByQuery} />
         </div>
       </div>
@@ -135,7 +135,7 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
     return (
       <div>
         {list}
-        <p className="mt-4 text-center text-sm text-gray-400">
+        <p className="mt-4 text-center text-sm text-stone-400">
           Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to see results on an interactive map.
         </p>
       </div>
@@ -143,7 +143,7 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
   }
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <div className="h-80 overflow-hidden rounded-xl border shadow-sm lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)] lg:self-start">
+      <div className="h-80 overflow-hidden rounded-2xl border border-cream-200 shadow-sm lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)] lg:self-start">
         <ResultsMap places={state.places} center={state.center} />
       </div>
       {list}
@@ -162,21 +162,21 @@ function LocationSearchForm({ onSearch }: { onSearch: (query: string) => void })
 
   return (
     <form onSubmit={submit}>
-      <label htmlFor="location-search" className="font-medium text-gray-700">
+      <label htmlFor="location-search" className="font-medium text-stone-700">
         Or search by city or ZIP / PIN code
       </label>
-      <div className="mt-2 flex gap-2">
+      <div className="mt-2.5 flex gap-2">
         <input
           id="location-search"
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="e.g. Bengaluru, Mumbai, 10036, 560034"
-          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 focus:border-brand-500 focus:outline-none"
+          className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-stone-800 placeholder:text-stone-400 focus:border-sage-600 focus:outline-none"
         />
         <button
           type="submit"
-          className="rounded-lg bg-brand-500 px-5 py-2 font-semibold text-white hover:bg-brand-600"
+          className="rounded-xl bg-sage-700 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-sage-800"
         >
           Search
         </button>
@@ -187,7 +187,7 @@ function LocationSearchForm({ onSearch }: { onSearch: (query: string) => void })
 
 function Status({ text }: { text: string }) {
   return (
-    <div className="rounded-xl border bg-white p-8 text-center text-lg text-gray-600">
+    <div className="rounded-2xl border border-cream-200 bg-white p-10 text-center text-lg text-stone-500 shadow-sm">
       {text}
     </div>
   );
@@ -195,35 +195,35 @@ function Status({ text }: { text: string }) {
 
 function PlaceCard({ place }: { place: PlaceSummary }) {
   return (
-    <li className="rounded-xl border bg-white p-5 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-2">
+    <li className="rounded-2xl border border-cream-200 bg-white p-6 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold">{place.name}</h2>
-          <p className="text-gray-600">{place.address}</p>
-          <div className="mt-2 flex flex-wrap gap-2 text-sm">
-            <span className="rounded-full bg-gray-100 px-3 py-1">
+          <h2 className="text-lg font-semibold tracking-tight text-stone-900">{place.name}</h2>
+          <p className="mt-0.5 text-stone-500">{place.address}</p>
+          <div className="mt-3 flex flex-wrap gap-2 text-sm">
+            <span className="rounded-full bg-cream-100 px-3 py-1 text-stone-600">
               {place.distanceKm.toFixed(1)} km away
             </span>
             {place.is24Hours ? (
-              <span className="rounded-full bg-green-100 px-3 py-1 text-green-800">
+              <span className="rounded-full bg-sage-100 px-3 py-1 font-medium text-sage-800">
                 Open 24/7
               </span>
             ) : place.openNow === true ? (
-              <span className="rounded-full bg-green-100 px-3 py-1 text-green-800">
+              <span className="rounded-full bg-sage-100 px-3 py-1 font-medium text-sage-800">
                 Open now
               </span>
             ) : place.openNow === false ? (
-              <span className="rounded-full bg-gray-200 px-3 py-1 text-gray-600">
+              <span className="rounded-full bg-stone-100 px-3 py-1 text-stone-500">
                 Closed now
               </span>
             ) : null}
             {place.isEmergency && (
-              <span className="rounded-full bg-red-100 px-3 py-1 text-red-800">
+              <span className="rounded-full bg-clay-100 px-3 py-1 font-medium text-clay-800">
                 Emergency care
               </span>
             )}
             {place.services.map((s) => (
-              <span key={s} className="rounded-full bg-orange-100 px-3 py-1 text-orange-800">
+              <span key={s} className="rounded-full bg-tan-100 px-3 py-1 text-tan-600">
                 {s.replaceAll("_", " ").toLowerCase()}
               </span>
             ))}
@@ -233,7 +233,7 @@ function PlaceCard({ place }: { place: PlaceSummary }) {
           {place.phone && (
             <a
               href={telUrl(place.phone)}
-              className="rounded-lg bg-green-600 px-5 py-3 font-bold text-white hover:bg-green-700"
+              className="rounded-xl bg-sage-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-sage-800"
             >
               📞 Call
             </a>
@@ -242,7 +242,7 @@ function PlaceCard({ place }: { place: PlaceSummary }) {
             href={googleMapsDirectionsUrl(place.lat, place.lng)}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-lg bg-blue-600 px-5 py-3 font-bold text-white hover:bg-blue-700"
+            className="rounded-xl border border-stone-200 bg-white px-5 py-3 font-semibold text-stone-700 transition-colors hover:bg-cream-100"
           >
             🧭 Directions
           </a>

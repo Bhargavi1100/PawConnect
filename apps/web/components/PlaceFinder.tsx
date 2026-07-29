@@ -165,7 +165,7 @@ function LocationSearchForm({ onSearch }: { onSearch: (query: string) => void })
       <label htmlFor="location-search" className="font-medium text-stone-700">
         Or search by city or ZIP / PIN code
       </label>
-      <div className="mt-2.5 flex gap-2">
+      <div className="mt-3 flex flex-col gap-2.5 sm:flex-row">
         <input
           id="location-search"
           type="text"
@@ -176,7 +176,7 @@ function LocationSearchForm({ onSearch }: { onSearch: (query: string) => void })
         />
         <button
           type="submit"
-          className="rounded-xl bg-sage-700 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-sage-800"
+          className="w-full rounded-xl bg-sage-700 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-sage-800 sm:w-auto"
         >
           Search
         </button>

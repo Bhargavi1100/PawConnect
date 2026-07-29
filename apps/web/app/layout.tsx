@@ -16,8 +16,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="border-b border-cream-200 bg-white/90 backdrop-blur">
           <nav className="mx-auto flex max-w-5xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <Link href="/" className="flex items-center gap-2.5 text-xl font-bold tracking-tight">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blush-100">
-                <PawIcon className="h-5 w-5" />
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blush-100">
+                <PawIcon className="h-6 w-6" />
               </span>
               <span className="text-stone-800">PawConnect</span>
             </Link>

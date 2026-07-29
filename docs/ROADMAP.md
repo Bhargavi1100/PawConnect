@@ -9,8 +9,10 @@
 ## Phase 1 — MVP launch
 - ✅ Google Places enrichment + response caching (server-side; per-cell 7-day
   cache in `EnrichmentArea`, results upserted into `Place` by `googlePlaceId`)
-- Open-now computation from structured hours (timezone-aware)
-- Manual location entry (city/ZIP via Geocoding) as geolocation fallback
+- ✅ Open-now computation from structured hours, evaluated in each place's
+  own IANA timezone (DST-safe; overnight ranges supported)
+- ✅ Manual location entry (city/ZIP/PIN via server-side Geocoding) as the
+  fallback when device geolocation is denied or unavailable
 - ✅ Interactive maps on web (`@vis.gl/react-google-maps` beside the results
   list, with pin info windows) and mobile (react-native-maps list/map toggle);
   both degrade to list-only without an API key

@@ -70,6 +70,28 @@ curl "http://localhost:4000/api/v1/places/nearby?lat=40.7580&lng=-73.9855&type=V
 
 Google Maps API keys are optional for local development — seeded sample data powers nearby search without any external API.
 
+## Deployment
+
+**Website → Vercel.** Import the repo and set **Root Directory to `apps/web`**
+(Project Settings → General) — that's the supported monorepo setup and stops
+Vercel from wrapping the API as a broken serverless function. All paths are
+then relative to `apps/web`: `apps/web/vercel.json` pins
+`outputDirectory: ".next"`, which overrides any stale dashboard-level
+Output Directory value (a dashboard override of `apps/web/.next` combined
+with Root Directory causes a doubled path — clear it under Build and
+Deployment settings). Never add a repo-root `vercel.json` with path
+overrides. Set `NEXT_PUBLIC_API_URL` (your deployed API) and optionally
+`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in the Vercel project env.
+
+**API → Railway / Render** (or any Node host; needs PostgreSQL with PostGIS —
+e.g. Railway Postgres, Neon, or Supabase):
+- Build: `npm install && npm run build --workspace @pawconnect/api`
+- Start: `npm start --workspace @pawconnect/api` — runs the bundled
+  `dist/index.js` under plain Node (no tsx needed in production)
+- Env: `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `PORT`,
+  optional `GOOGLE_MAPS_API_KEY`
+- Once: `npm run db:setup --workspace @pawconnect/api` (migrate + seed)
+
 ## Scripts
 
 | Command | Description |

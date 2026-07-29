@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   googleMapsDirectionsUrl,
   telUrl,
+  type GeocodeResult,
   type NearbyResponse,
   type PlaceSummary,
   type PlaceType,
@@ -67,11 +68,32 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
         setState({
           status: "error",
           message:
-            "Location permission was denied. Manual city/ZIP search is coming soon — please enable location access to search.",
+            "Location permission was denied. Search by city or ZIP/PIN code below instead.",
         }),
       { enableHighAccuracy: true, timeout: 10_000 },
     );
   }, [search]);
+
+  const searchByQuery = useCallback(
+    async (query: string) => {
+      setState({ status: "loading" });
+      try {
+        const res = await fetch(`${API_URL}/api/v1/geocode?q=${encodeURIComponent(query)}`);
+        const data = (await res.json()) as GeocodeResult & { error?: { message?: string } };
+        if (!res.ok) {
+          throw new Error(data.error?.message ?? `Location search failed (${res.status})`);
+        }
+        await search(data.lat, data.lng);
+      } catch (err) {
+        setState({
+          status: "error",
+          message:
+            err instanceof Error ? err.message : "Location search failed, please try again.",
+        });
+      }
+    },
+    [search],
+  );
 
   useEffect(() => {
     locate();
@@ -91,8 +113,11 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
           onClick={locate}
           className="mt-4 rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700"
         >
-          Try again
+          📍 Use my location
         </button>
+        <div className="mx-auto mt-6 max-w-md border-t border-red-200 pt-5">
+          <LocationSearchForm onSearch={searchByQuery} />
+        </div>
       </div>
     );
   }
@@ -126,6 +151,40 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
   );
 }
 
+function LocationSearchForm({ onSearch }: { onSearch: (query: string) => void }) {
+  const [query, setQuery] = useState("");
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = query.trim();
+    if (trimmed.length >= 2) onSearch(trimmed);
+  };
+
+  return (
+    <form onSubmit={submit}>
+      <label htmlFor="location-search" className="font-medium text-gray-700">
+        Or search by city or ZIP / PIN code
+      </label>
+      <div className="mt-2 flex gap-2">
+        <input
+          id="location-search"
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="e.g. Bengaluru, Mumbai, 10036, 560034"
+          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 focus:border-brand-500 focus:outline-none"
+        />
+        <button
+          type="submit"
+          className="rounded-lg bg-brand-500 px-5 py-2 font-semibold text-white hover:bg-brand-600"
+        >
+          Search
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function Status({ text }: { text: string }) {
   return (
     <div className="rounded-xl border bg-white p-8 text-center text-lg text-gray-600">
@@ -145,11 +204,19 @@ function PlaceCard({ place }: { place: PlaceSummary }) {
             <span className="rounded-full bg-gray-100 px-3 py-1">
               {place.distanceKm.toFixed(1)} km away
             </span>
-            {place.is24Hours && (
+            {place.is24Hours ? (
               <span className="rounded-full bg-green-100 px-3 py-1 text-green-800">
                 Open 24/7
               </span>
-            )}
+            ) : place.openNow === true ? (
+              <span className="rounded-full bg-green-100 px-3 py-1 text-green-800">
+                Open now
+              </span>
+            ) : place.openNow === false ? (
+              <span className="rounded-full bg-gray-200 px-3 py-1 text-gray-600">
+                Closed now
+              </span>
+            ) : null}
             {place.isEmergency && (
               <span className="rounded-full bg-red-100 px-3 py-1 text-red-800">
                 Emergency care

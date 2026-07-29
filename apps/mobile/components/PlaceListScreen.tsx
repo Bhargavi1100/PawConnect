@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import * as Location from "expo-location";
@@ -15,7 +16,7 @@ import {
   type PlaceSummary,
   type PlaceType,
 } from "@pawconnect/shared";
-import { fetchNearby } from "../lib/api";
+import { fetchGeocode, fetchNearby } from "../lib/api";
 import { ResultsMapView } from "./ResultsMapView";
 
 type Props = {
@@ -37,6 +38,22 @@ export function PlaceListScreen({ type, emergency, emptyMessage }: Props) {
   const [state, setState] = useState<State>({ status: "loading" });
   const [view, setView] = useState<"list" | "map">("list");
 
+  const searchAt = useCallback(
+    async (lat: number, lng: number) => {
+      setState({ status: "loading" });
+      try {
+        const data = await fetchNearby({ lat, lng, type, emergency });
+        setState({ status: "ready", places: data.results, center: { lat, lng } });
+      } catch (err) {
+        setState({
+          status: "error",
+          message: err instanceof Error ? err.message : "Something went wrong.",
+        });
+      }
+    },
+    [type, emergency],
+  );
+
   const load = useCallback(async () => {
     setState({ status: "loading" });
     try {
@@ -44,31 +61,39 @@ export function PlaceListScreen({ type, emergency, emptyMessage }: Props) {
       if (status !== "granted") {
         setState({
           status: "error",
-          message: "Location permission is required to find places near you.",
+          message:
+            "Location permission was denied. Search by city or ZIP/PIN code below instead.",
         });
         return;
       }
       const position = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
       });
-      const data = await fetchNearby({
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        type,
-        emergency,
-      });
-      setState({
-        status: "ready",
-        places: data.results,
-        center: { lat: position.coords.latitude, lng: position.coords.longitude },
-      });
+      await searchAt(position.coords.latitude, position.coords.longitude);
     } catch (err) {
       setState({
         status: "error",
         message: err instanceof Error ? err.message : "Something went wrong.",
       });
     }
-  }, [type, emergency]);
+  }, [searchAt]);
+
+  const searchByQuery = useCallback(
+    async (query: string) => {
+      setState({ status: "loading" });
+      try {
+        const location = await fetchGeocode(query);
+        await searchAt(location.lat, location.lng);
+      } catch (err) {
+        setState({
+          status: "error",
+          message:
+            err instanceof Error ? err.message : "Location search failed, please try again.",
+        });
+      }
+    },
+    [searchAt],
+  );
 
   useEffect(() => {
     void load();
@@ -88,8 +113,9 @@ export function PlaceListScreen({ type, emergency, emptyMessage }: Props) {
       <View style={styles.center}>
         <Text style={styles.statusText}>{state.message}</Text>
         <Pressable style={styles.retryButton} onPress={() => void load()}>
-          <Text style={styles.buttonText}>Try again</Text>
+          <Text style={styles.buttonText}>📍 Use my location</Text>
         </Pressable>
+        <LocationSearchForm onSearch={searchByQuery} />
       </View>
     );
   }
@@ -133,6 +159,38 @@ export function PlaceListScreen({ type, emergency, emptyMessage }: Props) {
   );
 }
 
+function LocationSearchForm({ onSearch }: { onSearch: (query: string) => void }) {
+  const [query, setQuery] = useState("");
+  const submit = () => {
+    const trimmed = query.trim();
+    if (trimmed.length >= 2) onSearch(trimmed);
+  };
+
+  return (
+    <View style={styles.searchForm}>
+      <Text style={styles.searchLabel}>Or search by city or ZIP / PIN code</Text>
+      <TextInput
+        style={styles.searchInput}
+        value={query}
+        onChangeText={setQuery}
+        placeholder="e.g. Bengaluru, Mumbai, 10036, 560034"
+        returnKeyType="search"
+        onSubmitEditing={submit}
+      />
+      <Pressable style={styles.searchButton} onPress={submit}>
+        <Text style={styles.buttonText}>Search</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+function openStatus(place: PlaceSummary): string {
+  if (place.is24Hours) return "  ·  Open 24/7";
+  if (place.openNow === true) return "  ·  Open now";
+  if (place.openNow === false) return "  ·  Closed now";
+  return "";
+}
+
 function PlaceCard({ place }: { place: PlaceSummary }) {
   return (
     <View style={styles.card}>
@@ -140,7 +198,7 @@ function PlaceCard({ place }: { place: PlaceSummary }) {
       <Text style={styles.address}>{place.address}</Text>
       <Text style={styles.meta}>
         {place.distanceKm.toFixed(1)} km away
-        {place.is24Hours ? "  ·  Open 24/7" : ""}
+        {openStatus(place)}
         {place.isEmergency ? "  ·  Emergency care" : ""}
       </Text>
       <View style={styles.actions}>
@@ -209,6 +267,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 24,
     paddingVertical: 12,
+  },
+  searchForm: { marginTop: 24, width: "100%", maxWidth: 360 },
+  searchLabel: { fontWeight: "600", color: "#444", marginBottom: 8 },
+  searchInput: {
+    backgroundColor: "#fff",
+    borderColor: "#d1d5db",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  searchButton: {
+    marginTop: 8,
+    backgroundColor: "#ea580c",
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: "center",
   },
   buttonText: { color: "#fff", fontWeight: "700" },
 });

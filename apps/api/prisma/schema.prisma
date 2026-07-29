@@ -35,6 +35,8 @@ model Place {
   phone         String?
   website       String?
   hours         Json?
+  // IANA zone id (e.g. "Asia/Kolkata"); open-now is computed in this zone
+  timezone      String?
   isEmergency   Boolean                               @default(false)
   is24Hours     Boolean                               @default(false)
   services      String[]                              @default([])

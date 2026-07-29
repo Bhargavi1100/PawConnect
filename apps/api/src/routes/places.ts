@@ -1,18 +1,31 @@
 import { Router } from "express";
-import { NearbyQuerySchema, type PlaceSummary } from "@pawconnect/shared";
+import {
+  isOpenAt,
+  MAX_NEARBY_RESULTS,
+  NearbyQuerySchema,
+  type PlaceSummary,
+  type WeeklyHours,
+} from "@pawconnect/shared";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { enrichNearby, isEnrichmentConfigured } from "../lib/googlePlaces";
 
 export const placesRouter = Router();
 
-type NearbyRow = Omit<PlaceSummary, "distanceKm"> & { distanceMeters: number };
+type NearbyRow = Omit<PlaceSummary, "distanceKm" | "openNow"> & {
+  distanceMeters: number;
+  hours: WeeklyHours | null;
+  timezone: string | null;
+};
 
 /**
  * GET /api/v1/places/nearby?lat&lng&type&radiusKm&emergency&openNow&limit
  *
  * PostGIS does the heavy lifting: ST_DWithin filters by radius using the GiST
- * index, and the KNN operator (<->) orders by true distance.
+ * index, and the KNN operator (<->) orders by true distance. Open-now is then
+ * computed per place in the place's own timezone (isOpenAt, packages/shared);
+ * with openNow=true only places KNOWN to be open are returned — places with
+ * unknown hours are excluded.
  */
 placesRouter.get("/nearby", async (req, res) => {
   const parsed = NearbyQuerySchema.safeParse(req.query);
@@ -42,35 +55,49 @@ placesRouter.get("/nearby", async (req, res) => {
   ];
   if (type) filters.push(Prisma.sql`"type" = ${type}::"PlaceType"`);
   if (emergency) filters.push(Prisma.sql`"isEmergency" = true`);
-  // Open-now currently approximated by the 24/7 flag; timezone-aware hours
-  // computation is planned (docs/ROADMAP.md, Phase 1).
-  if (openNow) filters.push(Prisma.sql`"is24Hours" = true`);
+
+  // Open-now filtering happens after the query, so over-fetch to keep the
+  // post-filter from under-filling the requested limit.
+  const fetchLimit = openNow ? MAX_NEARBY_RESULTS : limit;
 
   const rows = await prisma.$queryRaw<NearbyRow[]>`
     SELECT
       "id", "type", "name", "address", "phone", "website",
       "isEmergency", "is24Hours", "services", "verified",
+      "hours", "timezone",
       ST_Y("location"::geometry) AS "lat",
       ST_X("location"::geometry) AS "lng",
       ST_Distance("location", ${point}) AS "distanceMeters"
     FROM "Place"
     WHERE ${Prisma.join(filters, " AND ")}
     ORDER BY "location" <-> ${point}
-    LIMIT ${limit}
+    LIMIT ${fetchLimit}
   `;
 
-  const results: PlaceSummary[] = rows.map(({ distanceMeters, ...row }) => ({
-    ...row,
-    distanceKm: Math.round((distanceMeters / 1000) * 100) / 100,
-  }));
+  const now = new Date();
+  const results: PlaceSummary[] = rows
+    .map(({ distanceMeters, hours, timezone, ...row }) => ({
+      ...row,
+      distanceKm: Math.round((distanceMeters / 1000) * 100) / 100,
+      openNow: isOpenAt({ hours, timezone, is24Hours: row.is24Hours }, now),
+    }))
+    .filter((place) => !openNow || place.openNow === true)
+    .slice(0, limit);
   res.json({ results });
 });
 
+type DetailRow = {
+  is24Hours: boolean;
+  hours: WeeklyHours | null;
+  timezone: string | null;
+  [key: string]: unknown;
+};
+
 /** GET /api/v1/places/:id — full detail for one place. */
 placesRouter.get("/:id", async (req, res) => {
-  const rows = await prisma.$queryRaw<unknown[]>`
+  const rows = await prisma.$queryRaw<DetailRow[]>`
     SELECT
-      "id", "type", "name", "address", "phone", "website", "hours",
+      "id", "type", "name", "address", "phone", "website", "hours", "timezone",
       "isEmergency", "is24Hours", "services", "verified",
       "googlePlaceId", "source",
       ST_Y("location"::geometry) AS "lat",
@@ -83,5 +110,6 @@ placesRouter.get("/:id", async (req, res) => {
     res.status(404).json({ error: { message: "Place not found" } });
     return;
   }
-  res.json(rows[0]);
+  const place = rows[0];
+  res.json({ ...place, openNow: isOpenAt(place) });
 });

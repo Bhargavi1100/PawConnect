@@ -1,4 +1,4 @@
-import type { NearbyResponse, PlaceType } from "@pawconnect/shared";
+import type { GeocodeResult, NearbyResponse, PlaceType } from "@pawconnect/shared";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -20,4 +20,14 @@ export async function fetchNearby(options: {
     throw new Error(`API returned ${res.status}`);
   }
   return (await res.json()) as NearbyResponse;
+}
+
+/** Resolve a typed city / ZIP / PIN code to coordinates via the API. */
+export async function fetchGeocode(query: string): Promise<GeocodeResult> {
+  const res = await fetch(`${API_URL}/api/v1/geocode?q=${encodeURIComponent(query)}`);
+  const data = (await res.json()) as GeocodeResult & { error?: { message?: string } };
+  if (!res.ok) {
+    throw new Error(data.error?.message ?? `Location search failed (${res.status})`);
+  }
+  return data;
 }

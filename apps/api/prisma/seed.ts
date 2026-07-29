@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import type { WeeklyHours } from "@pawconnect/shared";
 
 const prisma = new PrismaClient();
 
@@ -13,11 +14,28 @@ type SeedPlace = {
   isEmergency: boolean;
   is24Hours: boolean;
   services: string[];
+  timezone: string;
+  hours: WeeklyHours | null;
 };
 
 // Sample data for two launch regions — Manhattan, NYC and three Indian metros
 // (Bengaluru, Mumbai, Delhi) — enough to exercise nearby search, distance
 // ordering, and the emergency/type filters locally. All entries are fictional.
+
+const OPEN_DAYS = ["mon", "tue", "wed", "thu", "fri"] as const;
+
+function daily(open: string, close: string): WeeklyHours {
+  const range = [{ open, close }];
+  return { sun: range, mon: range, tue: range, wed: range, thu: range, fri: range, sat: range };
+}
+
+function weekdays(open: string, close: string, extra: WeeklyHours = {}): WeeklyHours {
+  const range = [{ open, close }];
+  const hours: WeeklyHours = { ...extra };
+  for (const day of OPEN_DAYS) hours[day] = range;
+  return hours;
+}
+
 const places: SeedPlace[] = [
   {
     type: "VET_HOSPITAL",
@@ -27,6 +45,7 @@ const places: SeedPlace[] = [
     phone: "+1-212-555-0142",
     website: "https://example.com/midtown-emergency",
     isEmergency: true, is24Hours: true, services: [],
+    timezone: "America/New_York", hours: null,
   },
   {
     type: "VET_HOSPITAL",
@@ -36,6 +55,7 @@ const places: SeedPlace[] = [
     phone: "+1-212-555-0177",
     website: "https://example.com/uptown-vet",
     isEmergency: true, is24Hours: true, services: [],
+    timezone: "America/New_York", hours: null,
   },
   {
     type: "VET_CLINIC",
@@ -45,6 +65,7 @@ const places: SeedPlace[] = [
     phone: "+1-212-555-0110",
     website: "https://example.com/chelsea-vet",
     isEmergency: false, is24Hours: false, services: [],
+    timezone: "America/New_York", hours: weekdays("09:00", "18:00", { sat: [{ open: "10:00", close: "16:00" }] }),
   },
   {
     type: "VET_CLINIC",
@@ -54,6 +75,7 @@ const places: SeedPlace[] = [
     phone: "+1-212-555-0128",
     website: null,
     isEmergency: false, is24Hours: false, services: [],
+    timezone: "America/New_York", hours: daily("10:00", "20:00"),
   },
   {
     type: "VET_HOSPITAL",
@@ -63,6 +85,7 @@ const places: SeedPlace[] = [
     phone: "+1-718-555-0163",
     website: "https://example.com/bk-heights",
     isEmergency: true, is24Hours: false, services: [],
+    timezone: "America/New_York", hours: daily("08:00", "22:00"),
   },
   {
     type: "SHELTER",
@@ -73,6 +96,7 @@ const places: SeedPlace[] = [
     website: "https://example.com/macc",
     isEmergency: false, is24Hours: false,
     services: ["ADOPTION", "SURRENDER", "LOST_AND_FOUND"],
+    timezone: "America/New_York", hours: daily("10:00", "17:00"),
   },
   {
     type: "SHELTER",
@@ -83,6 +107,7 @@ const places: SeedPlace[] = [
     website: "https://example.com/hudson-humane",
     isEmergency: false, is24Hours: false,
     services: ["ADOPTION", "LOST_AND_FOUND"],
+    timezone: "America/New_York", hours: daily("10:00", "18:00"),
   },
   {
     type: "SHELTER",
@@ -93,6 +118,7 @@ const places: SeedPlace[] = [
     website: "https://example.com/bk-paws",
     isEmergency: false, is24Hours: false,
     services: ["ADOPTION", "SURRENDER"],
+    timezone: "America/New_York", hours: weekdays("11:00", "17:00"),
   },
 
   // --- Bengaluru ---
@@ -104,6 +130,7 @@ const places: SeedPlace[] = [
     phone: "+91-80-4000-1001",
     website: "https://example.com/koramangala-emergency",
     isEmergency: true, is24Hours: true, services: [],
+    timezone: "Asia/Kolkata", hours: null,
   },
   {
     type: "VET_CLINIC",
@@ -113,6 +140,7 @@ const places: SeedPlace[] = [
     phone: "+91-80-4000-1002",
     website: null,
     isEmergency: false, is24Hours: false, services: [],
+    timezone: "Asia/Kolkata", hours: weekdays("09:30", "20:30", { sat: [{ open: "09:30", close: "20:30" }] }),
   },
   {
     type: "SHELTER",
@@ -123,6 +151,7 @@ const places: SeedPlace[] = [
     website: "https://example.com/hebbal-shelter",
     isEmergency: false, is24Hours: false,
     services: ["ADOPTION", "SURRENDER", "LOST_AND_FOUND"],
+    timezone: "Asia/Kolkata", hours: daily("09:00", "18:00"),
   },
 
   // --- Mumbai ---
@@ -134,6 +163,7 @@ const places: SeedPlace[] = [
     phone: "+91-22-4000-2001",
     website: "https://example.com/bandra-emergency",
     isEmergency: true, is24Hours: true, services: [],
+    timezone: "Asia/Kolkata", hours: null,
   },
   {
     type: "SHELTER",
@@ -144,6 +174,7 @@ const places: SeedPlace[] = [
     website: "https://example.com/parel-shelter",
     isEmergency: false, is24Hours: false,
     services: ["ADOPTION", "LOST_AND_FOUND"],
+    timezone: "Asia/Kolkata", hours: daily("10:00", "18:00"),
   },
 
   // --- Delhi ---
@@ -155,6 +186,7 @@ const places: SeedPlace[] = [
     phone: "+91-11-4000-3001",
     website: "https://example.com/south-delhi-vet",
     isEmergency: true, is24Hours: true, services: [],
+    timezone: "Asia/Kolkata", hours: null,
   },
   {
     type: "SHELTER",
@@ -165,6 +197,7 @@ const places: SeedPlace[] = [
     website: "https://example.com/yamuna-shelter",
     isEmergency: false, is24Hours: false,
     services: ["ADOPTION", "SURRENDER", "LOST_AND_FOUND"],
+    timezone: "Asia/Kolkata", hours: daily("09:00", "17:00"),
   },
 ];
 
@@ -179,12 +212,14 @@ async function main() {
     await prisma.$executeRaw`
       INSERT INTO "Place"
         ("id", "type", "name", "location", "address", "phone", "website",
-         "isEmergency", "is24Hours", "services", "verified", "source")
+         "isEmergency", "is24Hours", "services", "timezone", "hours",
+         "verified", "source")
       VALUES
         (gen_random_uuid(), ${p.type}::"PlaceType", ${p.name},
          ST_SetSRID(ST_MakePoint(${p.lng}, ${p.lat}), 4326)::geography,
          ${p.address}, ${p.phone}, ${p.website},
          ${p.isEmergency}, ${p.is24Hours}, ${p.services}::text[],
+         ${p.timezone}, ${p.hours ? JSON.stringify(p.hours) : null}::jsonb,
          true, 'CURATED'::"PlaceSource")
     `;
   }

@@ -74,11 +74,14 @@ Google Maps API keys are optional for local development — seeded sample data p
 
 **Website → Vercel.** Import the repo and set **Root Directory to `apps/web`**
 (Project Settings → General) — that's the supported monorepo setup and stops
-Vercel from wrapping the API as a broken serverless function. With Root
-Directory set, no `vercel.json` is needed (and a repo-root one with path
-overrides will conflict — don't add one back). Set `NEXT_PUBLIC_API_URL`
-(your deployed API) and optionally `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in the
-Vercel project env.
+Vercel from wrapping the API as a broken serverless function. All paths are
+then relative to `apps/web`: `apps/web/vercel.json` pins
+`outputDirectory: ".next"`, which overrides any stale dashboard-level
+Output Directory value (a dashboard override of `apps/web/.next` combined
+with Root Directory causes a doubled path — clear it under Build and
+Deployment settings). Never add a repo-root `vercel.json` with path
+overrides. Set `NEXT_PUBLIC_API_URL` (your deployed API) and optionally
+`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in the Vercel project env.
 
 **API → Railway / Render** (or any Node host; needs PostgreSQL with PostGIS —
 e.g. Railway Postgres, Neon, or Supabase):

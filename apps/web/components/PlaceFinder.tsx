@@ -9,6 +9,7 @@ import {
   type PlaceSummary,
   type PlaceType,
 } from "@pawconnect/shared";
+import { LoaderCircle, LocateFixed, Navigation, Phone, Search } from "lucide-react";
 import { MAPS_KEY, ResultsMap } from "./ResultsMap";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -100,10 +101,10 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
   }, [locate]);
 
   if (state.status === "idle" || state.status === "locating") {
-    return <Status text="📍 Getting your location…" />;
+    return <Status icon={<LoaderCircle className="h-5 w-5 animate-spin" />} text="Getting your location…" />;
   }
   if (state.status === "loading") {
-    return <Status text="🔎 Searching nearby…" />;
+    return <Status icon={<Search className="h-5 w-5" />} text="Searching nearby…" />;
   }
   if (state.status === "error") {
     return (
@@ -111,9 +112,10 @@ export function PlaceFinder({ type, emergency, emptyMessage }: Props) {
         <p className="text-stone-700">{state.message}</p>
         <button
           onClick={locate}
-          className="mt-5 rounded-xl bg-clay-600 px-6 py-2.5 font-semibold text-white transition-colors hover:bg-clay-700"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-clay-600 px-6 py-2.5 font-semibold text-white transition-colors hover:bg-clay-700"
         >
-          📍 Use my location
+          <LocateFixed className="h-4 w-4" />
+          Use my location
         </button>
         <div className="mx-auto mt-7 max-w-md border-t border-cream-200 pt-6">
           <LocationSearchForm onSearch={searchByQuery} />
@@ -185,9 +187,10 @@ function LocationSearchForm({ onSearch }: { onSearch: (query: string) => void })
   );
 }
 
-function Status({ text }: { text: string }) {
+function Status({ text, icon }: { text: string; icon?: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-cream-200 bg-white p-10 text-center text-lg text-stone-500 shadow-sm">
+    <div className="flex items-center justify-center gap-2.5 rounded-2xl border border-cream-200 bg-white p-10 text-center text-lg text-stone-500 shadow-sm">
+      {icon}
       {text}
     </div>
   );
@@ -233,18 +236,20 @@ function PlaceCard({ place }: { place: PlaceSummary }) {
           {place.phone && (
             <a
               href={telUrl(place.phone)}
-              className="rounded-xl bg-sage-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-sage-800"
+              className="inline-flex items-center gap-2 rounded-xl bg-sage-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-sage-800"
             >
-              📞 Call
+              <Phone className="h-4 w-4" />
+              Call
             </a>
           )}
           <a
             href={googleMapsDirectionsUrl(place.lat, place.lng)}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-xl border border-stone-200 bg-white px-5 py-3 font-semibold text-stone-700 transition-colors hover:bg-cream-100"
+            className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 font-semibold text-stone-700 transition-colors hover:bg-cream-100"
           >
-            🧭 Directions
+            <Navigation className="h-4 w-4" />
+            Directions
           </a>
         </div>
       </div>

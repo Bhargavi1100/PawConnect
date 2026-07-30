@@ -1,17 +1,33 @@
-/** PawConnect logo mark: black paw pad with pink toe beans. */
+/**
+ * PawConnect logo mark: a paw print — four separated toes arced above a
+ * tri-lobed main pad, each with a pink bean inset. The shape itself is the
+ * silhouette (no enclosing circle), so the negative space reads as a paw.
+ */
 export function PawIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
-      <g fill="#D18C93">
-        <ellipse cx="12.5" cy="29" rx="6.5" ry="8.5" transform="rotate(-24 12.5 29)" />
-        <ellipse cx="51.5" cy="29" rx="6.5" ry="8.5" transform="rotate(24 51.5 29)" />
-        <ellipse cx="24.5" cy="15.5" rx="7" ry="9.5" transform="rotate(-8 24.5 15.5)" />
-        <ellipse cx="39.5" cy="15.5" rx="7" ry="9.5" transform="rotate(8 39.5 15.5)" />
+      {/* paw silhouette */}
+      <g fill="#1C1917">
+        <ellipse cx="11" cy="26" rx="6.4" ry="8" transform="rotate(-25 11 26)" />
+        <ellipse cx="24" cy="17" rx="6.8" ry="8.8" transform="rotate(-10 24 17)" />
+        <ellipse cx="40" cy="17" rx="6.8" ry="8.8" transform="rotate(10 40 17)" />
+        <ellipse cx="53" cy="26" rx="6.4" ry="8" transform="rotate(25 53 26)" />
+        <circle cx="20" cy="40" r="8.5" />
+        <circle cx="32" cy="37.5" r="9.5" />
+        <circle cx="44" cy="40" r="8.5" />
+        <ellipse cx="32" cy="46" rx="15" ry="10" />
       </g>
-      <path
-        fill="#1C1917"
-        d="M32 30c-9.8 0-17.2 7.3-17.2 14.8 0 5.5 4.4 9 8.8 9 3 0 5.5-1.4 8.4-1.4s5.4 1.4 8.4 1.4c4.4 0 8.8-3.5 8.8-9C49.2 37.3 41.8 30 32 30z"
-      />
+      {/* pink toe beans and central pad */}
+      <g fill="#E39AA1">
+        <ellipse cx="11" cy="26" rx="3.4" ry="4.4" transform="rotate(-25 11 26)" />
+        <ellipse cx="24" cy="17.5" rx="3.6" ry="4.8" transform="rotate(-10 24 17.5)" />
+        <ellipse cx="40" cy="17.5" rx="3.6" ry="4.8" transform="rotate(10 40 17.5)" />
+        <ellipse cx="53" cy="26" rx="3.4" ry="4.4" transform="rotate(25 53 26)" />
+        <circle cx="23.5" cy="40.5" r="5" />
+        <circle cx="32" cy="38.5" r="5.6" />
+        <circle cx="40.5" cy="40.5" r="5" />
+        <ellipse cx="32" cy="45" rx="9.5" ry="6.5" />
+      </g>
     </svg>
   );
 }

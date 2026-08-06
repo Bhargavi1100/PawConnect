@@ -70,6 +70,37 @@ curl "http://localhost:4000/api/v1/places/nearby?lat=40.7580&lng=-73.9855&type=V
 
 Google Maps API keys are optional for local development — seeded sample data powers nearby search without any external API.
 
+## Preview the mobile app in Expo Go
+
+Run these on your own machine (a hosted dev container usually can't open a
+tunnel your phone can reach):
+
+```bash
+npm install
+cd apps/mobile && npx expo start     # QR appears in the terminal — scan with Expo Go
+```
+
+Phone and computer must be on the same Wi-Fi. On different networks, use
+`npx expo start --tunnel`.
+
+**To make searches work**, the app needs the API — and on a phone
+`localhost` means the phone itself, so point it at your computer's LAN IP:
+
+```bash
+# terminal 1 — API + database
+docker compose up -d
+npm run db:setup --workspace @pawconnect/api
+npm run dev --workspace @pawconnect/api
+
+# terminal 2 — find your LAN IP, then start Expo with it
+ipconfig getifaddr en0                     # macOS  (Linux: hostname -I)
+cd apps/mobile
+EXPO_PUBLIC_API_URL="http://192.168.x.x:4000" npx expo start
+```
+
+Without that, the app still launches but every search shows the
+"search by city or ZIP/PIN" fallback.
+
 ## Deployment
 
 **Website → Vercel.** Import the repo and set **Root Directory to `apps/web`**

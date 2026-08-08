@@ -114,14 +114,13 @@ Deployment settings). Never add a repo-root `vercel.json` with path
 overrides. Set `NEXT_PUBLIC_API_URL` (your deployed API) and optionally
 `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in the Vercel project env.
 
-**API → Railway / Render** (or any Node host; needs PostgreSQL with PostGIS —
-e.g. Railway Postgres, Neon, or Supabase):
-- Build: `npm install && npm run build --workspace @pawconnect/api`
-- Start: `npm start --workspace @pawconnect/api` — runs the bundled
-  `dist/index.js` under plain Node (no tsx needed in production)
-- Env: `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `PORT`,
-  optional `GOOGLE_MAPS_API_KEY`
-- Once: `npm run db:setup --workspace @pawconnect/api` (migrate + seed)
+**API → Railway.** The repo-root `railway.json` configures build, start
+(migrations run automatically), and the `/api/v1/health` check. The database
+image **must include PostGIS** — a plain Postgres fails on the first migration.
+
+**Full step-by-step for all three targets — including env vars, the PostGIS
+gotcha, seeding, and Google API key setup — is in
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).**
 
 ## Scripts
 

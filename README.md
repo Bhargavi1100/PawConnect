@@ -70,6 +70,37 @@ curl "http://localhost:4000/api/v1/places/nearby?lat=40.7580&lng=-73.9855&type=V
 
 Google Maps API keys are optional for local development — seeded sample data powers nearby search without any external API.
 
+## Preview the mobile app in Expo Go
+
+Run these on your own machine (a hosted dev container usually can't open a
+tunnel your phone can reach):
+
+```bash
+npm install
+cd apps/mobile && npx expo start     # QR appears in the terminal — scan with Expo Go
+```
+
+Phone and computer must be on the same Wi-Fi. On different networks, use
+`npx expo start --tunnel`.
+
+**To make searches work**, the app needs the API — and on a phone
+`localhost` means the phone itself, so point it at your computer's LAN IP:
+
+```bash
+# terminal 1 — API + database
+docker compose up -d
+npm run db:setup --workspace @pawconnect/api
+npm run dev --workspace @pawconnect/api
+
+# terminal 2 — find your LAN IP, then start Expo with it
+ipconfig getifaddr en0                     # macOS  (Linux: hostname -I)
+cd apps/mobile
+EXPO_PUBLIC_API_URL="http://192.168.x.x:4000" npx expo start
+```
+
+Without that, the app still launches but every search shows the
+"search by city or ZIP/PIN" fallback.
+
 ## Deployment
 
 **Website → Vercel.** Import the repo and set **Root Directory to `apps/web`**
@@ -83,14 +114,13 @@ Deployment settings). Never add a repo-root `vercel.json` with path
 overrides. Set `NEXT_PUBLIC_API_URL` (your deployed API) and optionally
 `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in the Vercel project env.
 
-**API → Railway / Render** (or any Node host; needs PostgreSQL with PostGIS —
-e.g. Railway Postgres, Neon, or Supabase):
-- Build: `npm install && npm run build --workspace @pawconnect/api`
-- Start: `npm start --workspace @pawconnect/api` — runs the bundled
-  `dist/index.js` under plain Node (no tsx needed in production)
-- Env: `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `PORT`,
-  optional `GOOGLE_MAPS_API_KEY`
-- Once: `npm run db:setup --workspace @pawconnect/api` (migrate + seed)
+**API → Railway.** The repo-root `railway.json` configures build, start
+(migrations run automatically), and the `/api/v1/health` check. The database
+image **must include PostGIS** — a plain Postgres fails on the first migration.
+
+**Full step-by-step for all three targets — including env vars, the PostGIS
+gotcha, seeding, and Google API key setup — is in
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).**
 
 ## Scripts
 
